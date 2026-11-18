@@ -197,7 +197,7 @@ if st.button("✨ Generate Clips", type="primary", use_container_width=True):
                             f.write(uploaded.getbuffer())
                     else:
                         run_cmd(["yt-dlp", "--no-warnings", "--no-playlist",
-                                 "--js-runtimes", "deno",
+                                 "--js-runtimes", "node",
                                  "--remote-components", "ejs:github",
                                  "-f", "bv*[ext=mp4]+ba[ext=m4a]/b[ext=mp4]/b",
                                  "--merge-output-format", "mp4",
