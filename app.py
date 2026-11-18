@@ -196,14 +196,18 @@ if st.button("✨ Generate Clips", type="primary", use_container_width=True):
                         with open(video_path, "wb") as f:
                             f.write(uploaded.getbuffer())
                     else:
-                        run_cmd(["yt-dlp", "--no-playlist", "-f",
-                                 "bv*[ext=mp4]+ba[ext=m4a]/b[ext=mp4]/b",
-                                 "--merge-output-format", "mp4", "-o", video_path, url.strip()])
-                        if not os.path.exists(video_path):
-                            matches = list(Path(workdir).glob("source_video*"))
-                            if not matches:
-                                raise RuntimeError("Downloaded video file nahi mili.")
-                            video_path = str(matches[0])
+                        run_cmd(["yt-dlp", "--no-warnings", "--no-playlist",
+                                 "--js-runtimes", "deno",
+                                 "--remote-components", "ejs:github",
+                                 "-f", "bv*[ext=mp4]+ba[ext=m4a]/b[ext=mp4]/b",
+                                 "--merge-output-format", "mp4",
+                                 "-o", os.path.join(workdir, "source_video.%(ext)s"),
+                                 url.strip()])
+                        matches = list(Path(workdir).glob("source_video.*"))
+                        matches = [p for p in matches if p.suffix.lower() in (".mp4", ".mkv", ".webm", ".mov")]
+                        if not matches:
+                            raise RuntimeError("Download command complete hua, lekin video file nahi mili.")
+                        video_path = str(matches[0])
                 outputs = process_video(video_path, workdir)
                 st.success(f"{len(outputs)} clips ready!")
                 st.caption(f"Format: {aspect} · Export: {resolution} · Captions: {'On' if captions_on else 'Off'}")
